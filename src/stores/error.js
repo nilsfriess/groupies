@@ -14,6 +14,8 @@ export const useErrorStore = defineStore('error', {
           messageString += line
           messageString += '<br>'
         }
+      } else {
+        messageString = this.message
       }
 
       if (this.code) messageString += '<br><br> (Errorcode: ' + this.code + ')'

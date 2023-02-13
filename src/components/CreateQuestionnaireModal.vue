@@ -9,6 +9,8 @@ const name = ref('')
 const organisers = ref('')
 const rounds = ref()
 const workshops = ref(new Array())
+const groupName = ref('')
+const priorities = ref()
 
 const currentWorkshopName = ref('')
 const currentWorkshopCapacity = ref()
@@ -22,13 +24,13 @@ function addWorkshop() {
     currentWorkshopCapacity.value < 2
   ) {
     error.showMessage(
-      'Ein Workshop muss mindestens zwei Teilnehmer:innen aufnehmen können.'
+      'Eine Gruppe muss mindestens zwei Teilnehmer:innen aufnehmen können.'
     )
     return
   }
 
   if (currentWorkshopName.value.length === 0) {
-    error.showMessage('Name des Workshops darf nicht leer sein.')
+    error.showMessage('Name der Gruppe darf nicht leer sein.')
     return
   }
 
@@ -49,8 +51,15 @@ function create() {
     return
   }
 
-  if (workshops.value.length < 3) {
-    error.showMessage('Es müssen mindestens drei Workshops erstellt werden.')
+  if (workshops.value.length < priorities.value) {
+    error.showMessage(
+      `Für ${priorities.value} Prioritäten müssen mindestens ${priorities.value} Gruppen erstellt werden.`
+    )
+    return
+  }
+
+  if (groupName.value.length === 0) {
+    error.showMessage('Gruppenbezeichnung darf nicht leer sein')
     return
   }
 
@@ -59,42 +68,50 @@ function create() {
   const user = useCurrentUser()
   const organiserList = organisers.value
     .split(',')
+    .filter((o) => o !== '')
     .map((email) => email.toLowerCase())
     .filter((email) => email !== user.value.email) // Remove creator of questionnaire if they try to add themself as organiser
 
   const db = useDatabase()
 
   const questListRef = dbRef(db, 'questionnaires/' + user.value.uid)
-  const newQuestRef = push(questListRef)
-  set(newQuestRef, {
-    name: name.value,
-    orgas: organiserList,
-    rounds: rounds.value,
-    workshops: workshops.value,
-    isOpen: true,
-    link: user.value.uid + '/' + newQuestRef.key,
-    creator: user.value.email,
-  })
+  push(questListRef)
+    .then((ref) => {
+      set(ref, {
+        name: name.value,
+        orgas: organiserList,
+        rounds: rounds.value,
+        priorities: priorities.value,
+        workshopDescription: groupName.value,
+        workshops: workshops.value,
+        isOpen: true,
+        link: user.value.uid + '/' + ref.key,
+        creator: user.value.email,
+      }).catch(console.log)
 
-  if (organiserList.length > 0) {
-    for (let organiser of organiserList) {
-      let organiserMailWithComma = organiser.replaceAll('.', ',')
-      console.log(organiserMailWithComma)
-      const sharedQuestionnairesRef = dbRef(
-        db,
-        'sharedQuestionnaires/' + organiserMailWithComma + '/' + user.value.uid
-      )
-      // const newSharedQuestionnaireRef = push(sharedQuestionnairesRef)
-      get(sharedQuestionnairesRef).then((snapshot) => {
-        let data = new Array()
-        if (snapshot.exists()) {
-          data = snapshot.val()
+      if (organiserList.length > 0) {
+        for (let organiser of organiserList) {
+          let organiserMailWithComma = organiser.replaceAll('.', ',')
+          const sharedQuestionnairesRef = dbRef(
+            db,
+            'sharedQuestionnaires/' +
+              organiserMailWithComma +
+              '/' +
+              user.value.uid
+          )
+          // const newSharedQuestionnaireRef = push(sharedQuestionnairesRef)
+          get(sharedQuestionnairesRef).then((snapshot) => {
+            let data = new Array()
+            if (snapshot.exists()) {
+              data = snapshot.val()
+            }
+            data.push(ref.key)
+            set(sharedQuestionnairesRef, data)
+          })
         }
-        data.push(newQuestRef.key)
-        set(sharedQuestionnairesRef, data)
-      })
-    }
-  }
+      }
+    })
+    .catch(console.log)
 
   createQuestionnaire.unclick()
 }
@@ -130,7 +147,7 @@ function create() {
       />
       <small>
         Hier kannst du weitere Organisator:innen hinzufügen, die den Status der
-        Umfrag einsehen können. Sie können die Umfrage
+        Umfrage einsehen können. Sie können die Umfrage
         <b>nicht bearbeiten und nicht abschließen</b>. Gib einfach die
         Email-Adressen ein, mehrere Adressen werden durch Kommas getrennt.
         <s
@@ -138,6 +155,20 @@ function create() {
           werden.</s
         >
       </small>
+
+      <input
+        type="number"
+        id="questionnaire-priorities"
+        name="priorities"
+        placeholder="Prioritäten"
+        v-model.number="priorities"
+        min="1"
+      />
+      <small>
+        Hier kannst du angeben, wievele Prioritäten die Teilnehmer:innen angeben
+        können.
+      </small>
+
       <input
         type="number"
         id="questionnaire-rounds"
@@ -147,17 +178,36 @@ function create() {
         min="1"
       />
       <small>
-        Hier kannst du angeben, wie oft die unten erstellten Workshops angeboten
-        werden. Wenn die Teilnehmer:innen also beispielsweise an zwei
-        (verschiedenen) der unten erstellten Workshops teilnehmen können, dann
-        gebe hier 2 ein. Falls die Workshops nur einmal angeboten werden, dann
-        lasse dieses Feld einfach leer oder gebe 1 ein.
+        Hier kannst du angeben, wie oft die unten erstellten
+        {{ groupName == '' ? 'Gruppen' : groupName }} angeboten werden. Wenn die
+        Teilnehmer:innen also beispielsweise an zwei (verschiedenen) der unten
+        erstellten {{ groupName == '' ? 'Gruppen' : groupName }} teilnehmen
+        können, dann gebe hier 2 ein. Falls die
+        {{ groupName == '' ? 'Gruppen' : groupName }} nur einmal angeboten
+        werden, dann lasse dieses Feld einfach leer oder gebe 1 ein.
       </small>
 
-      <h4>Workshops</h4>
+      <h4>{{ groupName == '' ? 'Gruppen' : groupName }}</h4>
+      <input
+        type="text"
+        id="group-name"
+        name="group-name"
+        placeholder="Bezeichnung der Gruppen"
+        v-model.trim="groupName"
+      />
+      <small
+        >Erstellst du eine Umfrage für Workshops, dann gebe hier
+        <i>Workshops</i> ein, erstellst du eine Umfrage für Führungen, gebe hier
+        <i>Führungen</i>
+        ein. Natürlich kannst du auch andere Bezeichnungen eingeben, achte
+        darauf, dass sie im Plural formuliert sind.
+      </small>
       <ul id="workshop-list">
         <li v-if="workshops.length === 0">
-          <em>Erstellte Workshops werden hier angezeigt</em>
+          <em
+            >Erstellte {{ groupName == '' ? 'Gruppen' : groupName }} werden hier
+            angezeigt</em
+          >
         </li>
         <li v-else v-for="(workshop, index) in workshops">
           {{ workshop.name }} (Max. {{ workshop.capacity }} Teilnehmer:innen)
@@ -169,7 +219,7 @@ function create() {
       <div>
         <input
           type="text"
-          placeholder="Name des Workshops"
+          placeholder="Name der Gruppe"
           v-model.trim="currentWorkshopName"
         />
         <input
@@ -178,15 +228,16 @@ function create() {
           v-model.number="currentWorkshopCapacity"
         />
       </div>
-      <button class="outline" @click="addWorkshop()">
-        Workshop hinzufügen
-      </button>
+      <button class="outline" @click="addWorkshop()">Hinzufügen</button>
 
       <footer style="text-align: left; !important">
         <button @click="create">Umfrage erstellen</button>
         <small
           >Nachdem die Umfrage erstellt wurde, können
-          <b>keine Workshops mehr hinzugefügt oder gelöscht werden</b>.</small
+          <b
+            >keine {{ groupName == '' ? 'Gruppen' : groupName }} mehr
+            hinzugefügt oder gelöscht werden</b
+          >.</small
         >
       </footer>
     </article>
