@@ -2,6 +2,7 @@
 const props = defineProps({
   answers: Array,
   workshops: Array,
+  workshopDescription: String,
 })
 
 const choices = (answer) => {
@@ -34,7 +35,7 @@ defineEmits(['close'])
               <th>#</th>
               <th>Name</th>
               <th>Institution</th>
-              <th>Workshops</th>
+              <th>{{ workshopDescription }}</th>
             </tr>
           </thead>
           <tbody>

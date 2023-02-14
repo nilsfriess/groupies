@@ -78,7 +78,7 @@ function create() {
         name: name.value,
         orgas: organiserList,
         rounds: rounds.value,
-        priorities: priorities.value,
+        prioritiesk: priorities.value,
         workshopDescription: groupName.value,
         workshops: workshops.value,
         isOpen: true,
