@@ -1,4 +1,5 @@
 <script setup>
+import { onMounted } from 'vue'
 import { ref as dbRef, get, child, set, push } from '@firebase/database'
 import { useRoute } from 'vue-router'
 import { useDatabase } from 'vuefire'
@@ -12,7 +13,7 @@ const loaded = ref(false)
 // Form values
 const name = ref('')
 const institution = ref('')
-const choices = ref([-1, -1, -1])
+const choices = ref(new Array())
 
 const route = useRoute()
 const db = dbRef(useDatabase())
@@ -22,6 +23,8 @@ get(
   if (snapshot.exists()) {
     questionnaire.value = snapshot.val()
     loaded.value = true
+
+    choices.value = new Array(questionnaire.value.priorities)
   }
 })
 
@@ -29,10 +32,13 @@ function submit() {
   const error = useErrorStore()
 
   let individualChoices = new Set(choices.value)
-  if (choices.value.indexOf(-1) !== -1 || individualChoices.size !== 3) {
+  if (
+    choices.value.indexOf(-1) !== -1 ||
+    individualChoices.size !== questionnaire.value.priorities
+  ) {
     // Not all priorities are set, show error and return
     error.showMessage(
-      'Es müssen drei unterschiedliche Prioritäten ausgewählt werden.'
+      `Es müssen ${questionnaire.value.priorities} unterschiedliche Prioritäten ausgewählt werden.`
     )
     return
   }
@@ -97,49 +103,31 @@ function submit() {
         />
       </label>
 
-      <h5 style="margin-top=1em;">Priorität 1</h5>
-      <select v-model="choices[0]">
-        <option value="-1" disabled selected>Workshop auswählen</option>
-        <option
-          v-for="(workshop, index) in questionnaire.workshops"
-          :value="index"
-        >
-          {{ workshop.name }}
-        </option>
-      </select>
-
-      <h5>Priorität 2</h5>
-      <select v-model="choices[1]">
-        <option value="-1" disabled selected>Workshop auswählen</option>
-        <option
-          v-for="(workshop, index) in questionnaire.workshops"
-          :value="index"
-        >
-          {{ workshop.name }}
-        </option>
-      </select>
-
-      <h5>Priorität 3</h5>
-      <select v-model="choices[2]">
-        <option value="-1" disabled selected>Workshop auswählen</option>
-        <option
-          v-for="(workshop, index) in questionnaire.workshops"
-          :value="index"
-        >
-          {{ workshop.name }}
-        </option>
-      </select>
+      <section v-for="priority in questionnaire.priorities">
+        <h5 style="margin-top=1em;">Priorität {{ priority }}</h5>
+        <select v-model="choices[priority - 1]">
+          <option value="-1" disabled selected>Gruppe auswählen</option>
+          <option
+            v-for="(workshop, index) in questionnaire.workshops"
+            :value="index"
+          >
+            {{ workshop.name }}
+          </option>
+        </select>
+      </section>
 
       <small style="padding-top: 3em">
-        Wähle oben die drei Workshops aus, an denen du am liebsten teilnehmen
-        würdest. Es wird versucht, deine Auswahl zu berücksichtigen. Je nach
-        Anzahl verfügbarer Plätze, Prioritäten der anderen Teilnehmer:innen etc.
-        kann es jedoch passieren, dass manche oder sogar gar keine deiner
-        Wünsche berücksichtigt werden können. Du wirst von den Organisator:innen
-        darüber informiert, welchen Workshops du zugeteilt wurdest.
+        Wähle oben {{ questionnaire.priorities }}
+        {{ questionnaire.workshopDescription }} aus, an denen du am liebsten
+        teilnehmen würdest. Es wird versucht, deine Auswahl zu berücksichtigen.
+        Je nach Anzahl verfügbarer Plätze, Prioritäten der anderen
+        Teilnehmer:innen etc. kann es jedoch passieren, dass manche oder sogar
+        gar keine deiner Wünsche berücksichtigt werden können. Du wirst von den
+        Organisator:innen darüber informiert, welchen
+        {{ questionnaire.workshopDescription }} du zugeteilt wurdest.
       </small>
 
-      <footer>
+      <footer style="margin-top: 2em">
         <button type="submit">Senden</button>
         <small>Auswahl kann nicht mehr verändert werden.</small>
       </footer>

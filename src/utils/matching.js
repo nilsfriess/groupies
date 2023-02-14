@@ -1,13 +1,15 @@
-export function stableMatching(answers, workshops, rounds) {
+export function stableMatching(answers, workshops, rounds, priorities) {
   /* This function tries to compute a stable matching between
        participants that gave answers which contain priorities
        for the given workshops.
 
        This is done in the following greedy way
-       1. For each answer, randomly add workshops to the list offset
+       1. For each answer, randomly add workshops to the list of
        priorities to match the number of available workshops.
+       So if there are 10 workshops but only 5 priorities, we randomly
+       add 5 prioities to each participant's answer.
        2. Shuffle the answers randomly, so that participants who
-       entered their answers early, are not automatically preferred.
+       entered their answers early are not automatically preferred.
        3. Go through the list of answers and give each participant
        the best possible workshop.
     */
@@ -15,7 +17,7 @@ export function stableMatching(answers, workshops, rounds) {
   // Step 1
   let cleanAnswers = Object.values(answers)
 
-  if (workshops.length > 3) {
+  if (workshops.length > priorities) {
     for (let i = 0; i < cleanAnswers.length; ++i) {
       while (cleanAnswers[i].choices.length < workshops.length) {
         let nextWorkshop = getRandomInt(0, workshops.length)
