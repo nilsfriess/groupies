@@ -58,10 +58,7 @@ function create() {
     return
   }
 
-  if (groupName.value.length === 0) {
-    error.showMessage('Gruppenbezeichnung darf nicht leer sein')
-    return
-  }
+  if (groupName.value.length === 0) groupName.value = 'Gruppen'
 
   if (!rounds.value || rounds.value < 1) rounds.value = 1
 
