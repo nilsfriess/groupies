@@ -93,8 +93,20 @@ function deleteQuestionnaire() {
     'questionnaires/' + editQuestionnaireStore.currentQuestionnaire.link
   remove(ref(db, deletePath))
     .then(() => {
-      emit('saved')
-      editQuestionnaireStore.unclick()
+      const answersDeletPath =
+        'answers/' + editQuestionnaireStore.currentQuestionnaire.link
+      remove(ref(db, answersDeletPath))
+        .then(() => {
+          emit('saved')
+          editQuestionnaireStore.unclick()
+        })
+        .catch((err) => {
+          const error = useErrorStore()
+          if (err.code === 'PERMISSION_DENIED')
+            error.showMessage('Keine Berechtigung.')
+          else
+            error.showMessageAndCode('Das hat leider nicht geklappt', err.code)
+        })
     })
     .catch((err) => {
       const error = useErrorStore()
