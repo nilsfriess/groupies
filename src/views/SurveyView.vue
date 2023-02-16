@@ -16,6 +16,8 @@ const institution = ref('')
 const choices = ref(new Array())
 const isFull = ref(false)
 
+const additionalQuestionAnswers = ref(new Array())
+
 const route = useRoute()
 const db = dbRef(useDatabase())
 get(
@@ -26,6 +28,18 @@ get(
     loaded.value = true
 
     choices.value = new Array(questionnaire.value.priorities)
+
+    additionalQuestionAnswers.value = new Array(
+      questionnaire.value.additionalQuestions.length
+    )
+    for (let i = 0; i < additionalQuestionAnswers.value.length; ++i) {
+      additionalQuestionAnswers.value[i] = new Array(
+        questionnaire.value.additionalQuestions[i].options.length
+      )
+      for (let j = 0; j < additionalQuestionAnswers.value[i].length; ++j) {
+        additionalQuestionAnswers.value[i][j] = false
+      }
+    }
 
     get(child(db, 'answers/' + route.params.uid + '/' + route.params.qid)).then(
       (snapshot) => {
@@ -58,18 +72,32 @@ function submit() {
     return
   }
 
+  for (let i = 0; i < additionalQuestionAnswers.value.length; ++i) {
+    let filledOut = additionalQuestionAnswers.value[i].indexOf(true) !== -1
+    if (questionnaire.value.additionalQuestions[i].required && !filledOut) {
+      error.showMessage('Alle Fragen müssen beantwortet werden')
+      return
+    }
+  }
+
   document.getElementById('submission-loader').setAttribute('open', true)
 
   const answersListRef = dbRef(
     useDatabase(),
     'answers/' + route.params.uid + '/' + route.params.qid
   )
-  const newAnswerRef = push(answersListRef)
-  set(newAnswerRef, {
+
+  let submissionAnswer = {
     name: name.value,
     institution: institution.value,
     choices: choices.value,
-  })
+  }
+
+  if (additionalQuestionAnswers.value.length > 0)
+    submissionAnswer.additionalQuestionAnswers = additionalQuestionAnswers.value
+
+  const newAnswerRef = push(answersListRef)
+  set(newAnswerRef, submissionAnswer)
     .then(() => {
       document
         .querySelector('#submission-loader article')
@@ -137,6 +165,34 @@ function submit() {
         {{ questionnaire.workshopDescription }} du zugeteilt wurdest.
       </small>
 
+      <section
+        v-if="
+          questionnaire.additionalQuestions &&
+          questionnaire.additionalQuestions.length > 0
+        "
+      >
+        <template
+          v-for="(question, index) in questionnaire.additionalQuestions"
+        >
+          <h4>{{ question.question }}</h4>
+
+          <fieldset>
+            <label
+              v-for="(option, optionIndex) in question.options"
+              :for="question.question + option"
+            >
+              <input
+                type="checkbox"
+                :id="question.question + option"
+                name="{{ question + option }}"
+                v-model="additionalQuestionAnswers[index][optionIndex]"
+              />
+              {{ option }}
+            </label>
+          </fieldset>
+        </template>
+      </section>
+
       <footer style="margin-top: 2em">
         <button type="submit">Senden</button>
         <small>Auswahl kann nicht mehr verändert werden.</small>
@@ -159,7 +215,16 @@ function submit() {
 
 <style scoped>
 h5 {
-  margin-top: 1.5em;
+  margin-top: 1em;
   margin-bottom: 1em;
+}
+
+h4 {
+  margin-top: 2em;
+  margin-bottom: 0.5em;
+}
+
+fieldset label {
+  margin-left: 0.5em;
 }
 </style>

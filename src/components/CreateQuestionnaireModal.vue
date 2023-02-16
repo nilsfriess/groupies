@@ -17,11 +17,22 @@ const priorities = ref()
 const currentWorkshopName = ref('')
 const currentWorkshopCapacity = ref()
 
+const currentAdditionalQuestion = ref('')
+const currentAdditionalQuestionOption = ref('')
+const currentAdditionalQuestionOptions = ref(new Array())
+const additionalQuestions = ref(new Array())
+const currentAdditonalQuestionRequired = ref(true)
+
 const error = useErrorStore()
 const createQuestionnaire = useCreateQuestionnaireStore()
 const questionnaireStore = useQuestionnairesStore()
 
 function addWorkshop() {
+  if (currentWorkshopName.value.length === 0) {
+    error.showMessage('Name der Gruppe darf nicht leer sein.')
+    return
+  }
+
   if (
     currentWorkshopCapacity.value === undefined ||
     currentWorkshopCapacity.value < 2
@@ -29,11 +40,6 @@ function addWorkshop() {
     error.showMessage(
       'Eine Gruppe muss mindestens zwei Teilnehmer:innen aufnehmen können.'
     )
-    return
-  }
-
-  if (currentWorkshopName.value.length === 0) {
-    error.showMessage('Name der Gruppe darf nicht leer sein.')
     return
   }
 
@@ -46,6 +52,47 @@ function addWorkshop() {
 
 function removeWorkshop(index) {
   workshops.value.splice(index, 1)
+}
+
+function addOption() {
+  currentAdditionalQuestionOptions.value.push(
+    currentAdditionalQuestionOption.value
+  )
+  currentAdditionalQuestionOption.value = ''
+}
+
+function removeOption(index) {
+  currentAdditionalQuestionOptions.value.splice(index, 1)
+}
+
+function addAdditionalQuestion() {
+  if (currentAdditionalQuestion.value === '') {
+    error.showMessage('Frage darf nicht leer sein')
+    return
+  }
+
+  if (currentAdditionalQuestionOptions.value.length === 0) {
+    error.showMessage(
+      'Es müssen mindestens zwei Antwortmöglichkeiten hinzugefügt werden'
+    )
+    return
+  }
+
+  const question = {
+    question: currentAdditionalQuestion.value,
+    options: currentAdditionalQuestionOptions.value,
+    required: currentAdditonalQuestionRequired.value,
+  }
+  additionalQuestions.value.push(question)
+
+  currentAdditionalQuestion.value = ''
+  currentAdditionalQuestionOption.value = ''
+  currentAdditionalQuestionOptions.value = new Array()
+  currentAdditonalQuestionRequired.value = true
+}
+
+function removeAdditionalQuestion(index) {
+  additionalQuestions.value.splice(index, 1)
 }
 
 function create() {
@@ -88,6 +135,7 @@ function create() {
         link: user.value.uid + '/' + ref.key,
         creator: user.value.email,
         totalCapacity: workshops.value.reduce((sum, w) => w.capacity + sum, 0),
+        additionalQuestions: additionalQuestions.value,
       })
         .then(() => {
           if (organiserList.length > 0) {
@@ -154,10 +202,7 @@ function create() {
         Umfrage einsehen können. Sie können die Umfrage
         <b>nicht bearbeiten und nicht abschließen</b>. Gib einfach die
         Email-Adressen ein, mehrere Adressen werden durch Kommas getrennt.
-        <s
-          >Weitere Organisator:innen können auch später noch hinzugefügt
-          werden.</s
-        >
+        Weitere Organisator:innen können auch später noch hinzugefügt werden.
       </small>
 
       <input
@@ -225,6 +270,7 @@ function create() {
           type="text"
           placeholder="Name der Gruppe"
           v-model.trim="currentWorkshopName"
+          v-on:keyup.enter="addWorkshop()"
         />
         <input
           type="number"
@@ -233,6 +279,72 @@ function create() {
         />
       </div>
       <button class="outline" @click="addWorkshop()">Hinzufügen</button>
+
+      <h4 style="margin-bottom: 1em">Zusätzliche Abfragen</h4>
+      <small class="explanation"
+        >Hier können weitere Multiple-Choice-Fragen hinzugefügt werden, um
+        zusätzliche Informationen bei den Teilnehmer:innen einzuholen.</small
+      >
+      <ul id="additional-questions-list">
+        <li v-if="additionalQuestions.length === 0">
+          <em>Zusätzliche Fragen werden hier angezeigt</em>
+        </li>
+        <li v-else v-for="(question, index) in additionalQuestions">
+          {{ question.question }} ({{ question.options.join(', ') }})
+          <a
+            class="contrast"
+            href=""
+            @click.prevent="removeAdditionalQuestion(index)"
+            ><font-awesome-icon icon="fa-solid fa-square-minus"
+          /></a>
+        </li>
+      </ul>
+
+      <input
+        type="text"
+        placeholder="Frage"
+        v-model.trim="currentAdditionalQuestion"
+      />
+
+      <div class="flex">
+        <input
+          type="text"
+          id="option"
+          placeholder="Option"
+          required
+          v-model="currentAdditionalQuestionOption"
+          v-on:keyup.enter="addOption()"
+        />
+
+        <button @click="addOption()" class="primary outline">+</button>
+      </div>
+      <ul
+        v-if="currentAdditionalQuestionOptions.length > 0"
+        id="additional-questions-options-list"
+      >
+        <li v-for="(option, index) in currentAdditionalQuestionOptions">
+          {{ option }}
+          <a class="contrast" href="" @click.prevent="removeOption(index)"
+            ><font-awesome-icon icon="fa-solid fa-square-minus"
+          /></a>
+        </li>
+      </ul>
+      <fieldset>
+        <label for="additionalQuestionRequired">
+          <input
+            type="checkbox"
+            id="additionalQuestionRequired"
+            name="additionalQuestionRequired"
+            role="switch"
+            checked
+            v-model="currentAdditonalQuestionRequired"
+          />
+          Frage muss beantwortet werden
+        </label>
+      </fieldset>
+      <button class="outline" @click="addAdditionalQuestion()">
+        Frage hinzufügen
+      </button>
 
       <footer style="text-align: left; !important">
         <button @click="create">Umfrage erstellen</button>
@@ -249,8 +361,18 @@ function create() {
 </template>
 
 <style scoped>
-#workshop-list a {
+#workshop-list a,
+#additional-questions-list a,
+#additional-questions-options-list a {
   float: right;
+}
+
+#additional-questions-options-list {
+  margin-left: 0.5em;
+}
+
+li {
+  list-style: inside;
 }
 
 .explanation {
@@ -258,5 +380,22 @@ function create() {
   width: 100%;
   margin-bottom: var(--spacing);
   color: var(--muted-color);
+}
+
+.flex {
+  display: flex;
+  gap: 1em;
+}
+
+.flex button {
+  flex: 5;
+}
+
+h4 {
+  margin-top: 3em;
+}
+
+h4:first-of-type {
+  margin-top: 0;
 }
 </style>
