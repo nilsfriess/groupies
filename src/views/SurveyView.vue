@@ -14,6 +14,7 @@ const loaded = ref(false)
 const name = ref('')
 const institution = ref('')
 const choices = ref(new Array())
+const isFull = ref(false)
 
 const route = useRoute()
 const db = dbRef(useDatabase())
@@ -25,6 +26,15 @@ get(
     loaded.value = true
 
     choices.value = new Array(questionnaire.value.priorities)
+
+    get(child(db, 'answers/' + route.params.uid + '/' + route.params.qid)).then(
+      (snapshot) => {
+        const answers = snapshot.size
+        const capacity = questionnaire.value.totalCapacity
+
+        if (answers >= capacity) isFull.value = true
+      }
+    )
   }
 })
 
@@ -78,7 +88,7 @@ function submit() {
   <article id="loader" aria-busy="true" v-if="!loaded">
     Umfrage wird geladen...
   </article>
-  <article id="form-section" v-if="loaded && questionnaire.isOpen">
+  <article id="form-section" v-if="loaded && questionnaire.isOpen && !isFull">
     <form @submit.prevent="submit">
       <h2 id="questionnaire-name">{{ questionnaire.name }}</h2>
       <label for="name">
@@ -136,6 +146,10 @@ function submit() {
 
   <article v-if="loaded && !questionnaire.isOpen">
     Diese Umfrage wurde bereits geschlossen.
+  </article>
+
+  <article v-if="loaded && questionnaire.isOpen && isFull">
+    Diese Umfrage ist voll.
   </article>
 
   <dialog id="submission-loader">

@@ -81,12 +81,13 @@ function create() {
         name: name.value,
         orgas: organiserList,
         rounds: rounds.value,
-        prioritiesk: priorities.value,
+        priorities: priorities.value,
         workshopDescription: groupName.value,
         workshops: workshops.value,
         isOpen: true,
         link: user.value.uid + '/' + ref.key,
         creator: user.value.email,
+        totalCapacity: workshops.value.reduce((sum, w) => w.capacity + sum, 0),
       })
         .then(() => {
           if (organiserList.length > 0) {
