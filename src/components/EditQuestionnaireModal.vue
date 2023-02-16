@@ -246,7 +246,7 @@ onMounted(() => {
 }
 
 article {
-  min-width: 70vw;
+  min-width: 45vw;
 }
 
 details {
