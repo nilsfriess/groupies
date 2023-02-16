@@ -2,8 +2,10 @@
 import { onMounted, ref } from 'vue'
 import { ref as dbRef, set, push, get } from 'firebase/database'
 import { useCurrentUser, useDatabase } from 'vuefire'
+
 import { useErrorStore } from '../stores/error'
 import { useCreateQuestionnaireStore } from '../stores/createQuestionnaire'
+import { useQuestionnairesStore } from '../stores/questionnaires'
 
 const name = ref('')
 const organisers = ref('')
@@ -17,6 +19,7 @@ const currentWorkshopCapacity = ref()
 
 const error = useErrorStore()
 const createQuestionnaire = useCreateQuestionnaireStore()
+const questionnaireStore = useQuestionnairesStore()
 
 function addWorkshop() {
   if (
@@ -84,33 +87,36 @@ function create() {
         isOpen: true,
         link: user.value.uid + '/' + ref.key,
         creator: user.value.email,
-      }).catch(console.log)
-
-      if (organiserList.length > 0) {
-        for (let organiser of organiserList) {
-          let organiserMailWithComma = organiser.replaceAll('.', ',')
-          const sharedQuestionnairesRef = dbRef(
-            db,
-            'sharedQuestionnaires/' +
-              organiserMailWithComma +
-              '/' +
-              user.value.uid
-          )
-          // const newSharedQuestionnaireRef = push(sharedQuestionnairesRef)
-          get(sharedQuestionnairesRef).then((snapshot) => {
-            let data = new Array()
-            if (snapshot.exists()) {
-              data = snapshot.val()
+      })
+        .then(() => {
+          if (organiserList.length > 0) {
+            for (let organiser of organiserList) {
+              let organiserMailWithComma = organiser.replaceAll('.', ',')
+              const sharedQuestionnairesRef = dbRef(
+                db,
+                'sharedQuestionnaires/' +
+                  organiserMailWithComma +
+                  '/' +
+                  user.value.uid
+              )
+              // const newSharedQuestionnaireRef = push(sharedQuestionnairesRef)
+              get(sharedQuestionnairesRef).then((snapshot) => {
+                let data = new Array()
+                if (snapshot.exists()) {
+                  data = snapshot.val()
+                }
+                data.push(ref.key)
+                set(sharedQuestionnairesRef, data)
+              })
             }
-            data.push(ref.key)
-            set(sharedQuestionnairesRef, data)
-          })
-        }
-      }
+          }
+
+          createQuestionnaire.unclick()
+          questionnaireStore.load()
+        })
+        .catch(console.log)
     })
     .catch(console.log)
-
-  createQuestionnaire.unclick()
 }
 </script>
 
