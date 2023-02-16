@@ -125,6 +125,7 @@ const closeQuestionnaire = () => {
     'questionnaires/' + editQuestionnaireStore.currentQuestionnaire.link
   const updated = {}
   updated[updatePath] = editQuestionnaireStore.currentQuestionnaire
+  updated[updatePath].isOpen = false
   update(db, updated)
     .then(() => {
       emit('saved')
