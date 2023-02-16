@@ -1,6 +1,6 @@
 <template>
-  <blockquote>
-    <h6>Achtung</h6>
+  <details style="margin-top: 12em">
+    <summary>Hinweise zur Benutzung</summary>
     <p>
       Diese Webapp befindet sich noch in der Entwicklung. Schon eingegebene
       Daten können unter Umständen wieder gelöscht werden, bei Fehlern wird
@@ -20,8 +20,11 @@
         >
         Umfragen werden jetzt mit den angegebenen Organisator:innen geteilt; sie
         haben nur lesenden Zugriff, können die Umfrage also nicht bearbeiten,
-        abschließen oder löschen. Außerdem können nach Erstellen einer Umfrage
-        (im Moment) weder Organisator:innen hinzugefügt, noch gelöscht werden.
+        abschließen oder löschen.
+        <s
+          >Außerdem können nach Erstellen einer Umfrage (im Moment) weder
+          Organisator:innen hinzugefügt, noch gelöscht werden.</s
+        >
       </li>
       <li>
         Die Anzahl der Teilnehmer:innen für Workshops kann nach Erstellen einer
@@ -37,5 +40,5 @@
         einem Fehler, führt jedoch zu falschen Zuteilungen.
       </li>
     </ul>
-  </blockquote>
+  </details>
 </template>
