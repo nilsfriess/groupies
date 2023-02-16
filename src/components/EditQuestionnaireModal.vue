@@ -3,7 +3,7 @@
 // import { ref as dbRef, set, push } from 'firebase/database'
 // import { useCurrentUser, useDatabase } from 'vuefire'
 // import { useErrorStore } from '../stores/error'
-import { ref, update, remove, set } from '@firebase/database'
+import { ref, update, remove, set, get, equalTo } from '@firebase/database'
 import { onMounted } from 'vue'
 import { useDatabase } from 'vuefire'
 import { useEditQuestionnaireStore } from '../stores/editQuestionnaire'
@@ -29,8 +29,6 @@ function addNewOrgas() {
   let orgasToAdd = new Array()
   let orgasToDelete = new Array()
 
-  console.log(orgasBefore)
-
   for (let organiser of orgasBefore) {
     if (
       !editQuestionnaireStore.currentQuestionnaire.orgas.includes(organiser)
@@ -45,21 +43,50 @@ function addNewOrgas() {
     }
   }
 
+  orgasToAdd = orgasToAdd.filter((o) => o !== '')
+  orgasToDelete = orgasToDelete.filter((o) => o !== '')
+
   for (let organiser of orgasToDelete) {
     let organiserMailWithComma = organiser.replaceAll('.', ',')
     const db = useDatabase()
+
+    const link = editQuestionnaireStore.currentQuestionnaire.link.split('/')
+    const creatorID = link[0]
+    const questionnaireID = link[1]
+
     const delPath =
-      'sharedQuestionnaires/' +
-      organiserMailWithComma +
-      '/' +
-      editQuestionnaireStore.currentQuestionnaire.link
-    remove(ref(db, delPath))
+      'sharedQuestionnaires/' + organiserMailWithComma + '/' + creatorID
+    remove(ref(db, delPath), equalTo(questionnaireID))
       .then(() => {
-        console.log('ok')
+        console.log('deleted')
       })
-      .catch((err) => {
-        console.error(err)
-      })
+      .catch((err) => console.log(err))
+  }
+
+  for (let organiser of orgasToAdd) {
+    let organiserMailWithComma = organiser.replaceAll('.', ',')
+    const db = useDatabase()
+
+    const link = editQuestionnaireStore.currentQuestionnaire.link.split('/')
+    const creatorID = link[0]
+    const questionnaireID = link[1]
+
+    const sharedQuestionnairesRef = ref(
+      db,
+      'sharedQuestionnaires/' + organiserMailWithComma + '/' + creatorID
+    )
+    get(sharedQuestionnairesRef).then((snapshot) => {
+      let data = new Array()
+      if (snapshot.exists()) {
+        data = snapshot.val()
+      }
+      data.push(questionnaireID)
+      set(sharedQuestionnairesRef, data)
+        .then(() => {
+          console.log('added')
+        })
+        .catch((err) => console.log(err))
+    })
   }
 }
 
@@ -187,7 +214,6 @@ onMounted(() => {
         <label for="orga">
           Weitere Organisator:innen
           <input
-            disabled
             type="text"
             name="orga"
             multiple
@@ -206,52 +232,6 @@ onMounted(() => {
           />
         </label>
       </details>
-      <!--
-      
-      <small>
-        Hier kannst du weitere Organisator:innen hinzufügen, die auch Zugriff
-        auf diese Umfrage bekommen, also den Status einsehen oder die Umfrage
-        abschließen können. Gib einfach die Email-Adressen ein, mehrere Adressen
-        werden durch Kommas getrennt. Weitere Organisator:innen können auch
-        später noch hinzugefügt werden.
-      </small>
-      
-      <small>
-        Hier kannst du angeben, wie oft die unten erstellten Workshops angeboten
-        werden. Wenn die Teilnehmer:innen also beispielsweise an zwei
-        (verschiedenen) der unten erstellten Workshops teilnehmen können, dann
-        gebe hier 2 ein. Falls die Workshops nur einmal angeboten werden, dann
-        lasse dieses Feld einfach leer oder gebe 1 ein.
-      </small>
-
-      <h4>Workshops</h4>
-      <ul id="workshop-list">
-        <li v-if="workshops.length === 0">
-          <em>Erstellte Workshops werden hier angezeigt</em>
-        </li>
-        <li v-else v-for="(workshop, index) in workshops">
-          {{ workshop.name }} (Max. {{ workshop.capacity }} Teilnehmer:innen)
-          <a class="contrast" href="" @click.prevent="removeWorkshop(index)"
-            ><font-awesome-icon icon="fa-solid fa-square-minus"
-          /></a>
-        </li>
-      </ul>
-      <div>
-        <input
-          type="text"
-          placeholder="Name des Workshops"
-          v-model.trim="currentWorkshopName"
-        />
-        <input
-          type="number"
-          placeholder="Max. Teilnehmer:innen"
-          v-model.number="currentWorkshopCapacity"
-        />
-      </div>
-      <button class="outline" @click="addWorkshop()">
-        Workshop hinzufügen
-      </button> -->
-
       <footer>
         <button @click="save()">Änderungen speichern</button>
       </footer>
