@@ -12,15 +12,6 @@ const user = useCurrentUser()
   <article aria-busy="true" v-if="user === undefined"></article>
   <header>
     <Navbar v-if="user !== undefined" />
-
-    <!-- <div class="wrapper"> -->
-    <!--   <HelloWorld msg="You did it!" /> -->
-
-    <!--   <nav> -->
-    <!--     <RouterLink to="/">Home</RouterLink> -->
-    <!--     <RouterLink to="/about">About</RouterLink> -->
-    <!--   </nav> -->
-    <!-- </div> -->
   </header>
 
   <RouterView v-if="user !== undefined" />
