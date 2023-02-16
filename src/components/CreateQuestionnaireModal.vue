@@ -196,7 +196,7 @@ function create() {
         >Erstellst du eine Umfrage für Workshops, dann gebe hier
         <i>Workshops</i> ein, erstellst du eine Umfrage für Führungen, gebe hier
         <i>Führungen</i>
-        ein. Natürlich kannst du auch andere Bezeichnungen eingeben, achte
+        ein. Natürlich kannst du auch andere Bezeichnungen eingeben; achte
         darauf, dass sie im Plural formuliert sind.
       </small>
       <ul id="workshop-list">
@@ -244,5 +244,12 @@ function create() {
 <style scoped>
 #workshop-list a {
   float: right;
+}
+
+.explanation {
+  display: block;
+  width: 100%;
+  margin-bottom: var(--spacing);
+  color: var(--muted-color);
 }
 </style>
