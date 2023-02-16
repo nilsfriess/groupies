@@ -29,15 +29,18 @@ get(
 
     choices.value = new Array(questionnaire.value.priorities)
 
-    additionalQuestionAnswers.value = new Array(
-      questionnaire.value.additionalQuestions.length
-    )
-    for (let i = 0; i < additionalQuestionAnswers.value.length; ++i) {
-      additionalQuestionAnswers.value[i] = new Array(
-        questionnaire.value.additionalQuestions[i].options.length
+    if (questionnaire.value.additionalQuestions) {
+      additionalQuestionAnswers.value = new Array(
+        questionnaire.value.additionalQuestions.length
       )
-      for (let j = 0; j < additionalQuestionAnswers.value[i].length; ++j) {
-        additionalQuestionAnswers.value[i][j] = false
+
+      for (let i = 0; i < additionalQuestionAnswers.value.length; ++i) {
+        additionalQuestionAnswers.value[i] = new Array(
+          questionnaire.value.additionalQuestions[i].options.length
+        )
+        for (let j = 0; j < additionalQuestionAnswers.value[i].length; ++j) {
+          additionalQuestionAnswers.value[i][j] = false
+        }
       }
     }
 
