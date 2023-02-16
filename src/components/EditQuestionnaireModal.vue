@@ -37,11 +37,12 @@ function addNewOrgas() {
     }
   }
 
-  for (let organiser of editQuestionnaireStore.currentQuestionnaire.orgas) {
-    if (!orgasBefore.includes(organiser)) {
-      orgasToAdd.push(organiser)
+  if (editQuestionnaireStore.currentQuestionnaire.orgas)
+    for (let organiser of editQuestionnaireStore.currentQuestionnaire.orgas) {
+      if (!orgasBefore.includes(organiser)) {
+        orgasToAdd.push(organiser)
+      }
     }
-  }
 
   orgasToAdd = orgasToAdd.filter((o) => o !== '')
   orgasToDelete = orgasToDelete.filter((o) => o !== '')
