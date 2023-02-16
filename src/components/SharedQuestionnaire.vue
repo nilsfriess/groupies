@@ -81,6 +81,7 @@ onMounted(() => {
     :answers="answers"
     :workshops="questionnaire.workshops"
     :workshopDescription="questionnaire.workshopDescription"
+    :additionalQuestions="questionnaire.additionalQuestions"
     v-if="answersModalVisible"
     @close="answersModalVisible = false"
   ></AnswersModal>
