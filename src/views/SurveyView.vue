@@ -78,7 +78,7 @@ function submit() {
   <article id="loader" aria-busy="true" v-if="!loaded">
     Umfrage wird geladen...
   </article>
-  <article id="form-section" v-if="loaded">
+  <article id="form-section" v-if="loaded && questionnaire.isOpen">
     <form @submit.prevent="submit">
       <h2 id="questionnaire-name">{{ questionnaire.name }}</h2>
       <label for="name">
@@ -132,6 +132,10 @@ function submit() {
         <small>Auswahl kann nicht mehr verändert werden.</small>
       </footer>
     </form>
+  </article>
+
+  <article v-if="loaded && !questionnaire.isOpen">
+    Diese Umfrage wurde bereits geschlossen.
   </article>
 
   <dialog id="submission-loader">
