@@ -15,8 +15,9 @@ function computeMatching() {
   let workshops = toRaw(props.questionnaire.workshops)
   let rounds = props.questionnaire.rounds
   let answers = toRaw(props.answers)
+  let priorities = props.questionnaire.priorities
 
-  matchings.value = stableMatching(answers, workshops, rounds)
+  matchings.value = stableMatching(answers, workshops, rounds, priorities)
 }
 
 function download() {
