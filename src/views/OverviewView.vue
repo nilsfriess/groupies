@@ -91,24 +91,9 @@ createQuestionnaire.$subscribe((_, state) => {
 
 <style scoped>
 div.logout {
-  position: relative;
   display: flex;
   justify-content: space-between;
-  margin-top: 4em;
-}
-
-div.logout .user-email {
-  margin: 0;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-div.logout .logout-button {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  right: 0;
+  align-items: center;
 }
 
 #disclaimer {
@@ -117,5 +102,48 @@ div.logout .logout-button {
 
 h3.m-top {
   margin-top: 3em;
+}
+
+@media (max-width: 575px) {
+  footer {
+    left: 0px;
+    right: 0px;
+    padding-left: var(--spacing);
+    padding-right: var(--spacing);
+  }
+}
+
+@media (min-width: 576px) {
+  footer {
+    left: calc(0.5 * (100vw - 540px));
+    right: calc(0.5 * (100vw - 540px));
+  }
+}
+
+@media (min-width: 768px) {
+  footer {
+    left: calc(0.5 * (100vw - 720px));
+    right: calc(0.5 * (100vw - 720px));
+  }
+}
+
+@media (min-width: 992px) {
+  footer {
+    left: calc(0.5 * (100vw - 960px));
+    right: calc(0.5 * (100vw - 960px));
+  }
+}
+
+@media (min-width: 1200px) {
+  footer {
+    left: calc(0.5 * (100vw - 1140px));
+    right: calc(0.5 * (100vw - 1140px));
+  }
+}
+
+footer {
+  position: absolute;
+  display: block;
+  bottom: 2em;
 }
 </style>
