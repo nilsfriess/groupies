@@ -31,8 +31,10 @@
         Umfrage nicht verändert werden.
       </li>
       <li>
-        Es wird nicht überprüft, ob es genügend Plätze für alle angemeldeten
-        Teilnehmer:innen gibt.
+        <s
+          >Es wird nicht überprüft, ob es genügend Plätze für alle angemeldeten
+          Teilnehmer:innen gibt.</s
+        >
       </li>
       <li><s>Eine erzeugte Zuteilung kann nicht exportiert werden.</s></li>
       <li>
