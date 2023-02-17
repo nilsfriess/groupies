@@ -80,6 +80,8 @@ function download() {
   writeFileXLSX(workbook, props.questionnaire.name + '.xlsx')
 }
 
+const isMobile = () => screen.width <= 760
+
 const emit = defineEmits(['close'])
 
 onMounted(() => {
@@ -213,18 +215,23 @@ onMounted(() => {
 
       <footer>
         <button @click="download()">Herunterladen</button>
+        <small v-if="isMobile()"
+          >Auf manchen mobilen Geräten funktioniert der Download der Zuteilungen
+          nicht.</small
+        >
       </footer>
     </article>
   </dialog>
 </template>
 
 <style scoped>
-dialog article {
-  min-width: 45vw;
-}
 .option {
   border-left: 1px solid var(--primary);
   padding-left: 1em;
   margin-bottom: 2em;
+}
+
+footer {
+  text-align: left;
 }
 </style>
