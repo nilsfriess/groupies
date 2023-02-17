@@ -22,6 +22,7 @@ const currentAdditionalQuestionOption = ref('')
 const currentAdditionalQuestionOptions = ref(new Array())
 const additionalQuestions = ref(new Array())
 const currentAdditonalQuestionRequired = ref(true)
+const warnAdditionalQuestionModalOpen = ref(false)
 
 const error = useErrorStore()
 const createQuestionnaire = useCreateQuestionnaireStore()
@@ -98,6 +99,11 @@ function removeAdditionalQuestion(index) {
 function create() {
   if (name.value.length === 0) {
     error.showMessage('Name darf nicht leer sein.')
+    return
+  }
+
+  if (currentAdditionalQuestion.value !== '') {
+    warnAdditionalQuestionModalOpen.value = true
     return
   }
 
@@ -356,6 +362,22 @@ function create() {
           >.</small
         >
       </footer>
+    </article>
+  </dialog>
+
+  <dialog open v-if="warnAdditionalQuestionModalOpen">
+    <article>
+      <header>
+        <a
+          href=""
+          aria-label="Close"
+          class="close"
+          @click.prevent="warnAdditionalQuestionModalOpen = false"
+        ></a>
+        Achtung
+      </header>
+      Es wurde eine zusätzliche Frage eingegebeben, aber noch nicht hinzugefügt.
+      Klicke auf 'Frage hinzufügen', um die Frage hinzuzufügen.
     </article>
   </dialog>
 </template>
