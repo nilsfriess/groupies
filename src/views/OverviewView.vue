@@ -40,53 +40,55 @@ createQuestionnaire.$subscribe((_, state) => {
 </script>
 
 <template>
-  <article
-    v-if="
-      questionnaires.questionnaires.length === 0 &&
-      questionnaires.sharedQuestionnaires.length === 0
-    "
-  >
-    Hier werden deine Umfragen angezeigt, sobald du welche erstellt hast.
-  </article>
+  <div class="overview">
+    <article
+      v-if="
+        questionnaires.questionnaires.length === 0 &&
+        questionnaires.sharedQuestionnaires.length === 0
+      "
+    >
+      Hier werden deine Umfragen angezeigt, sobald du welche erstellt hast.
+    </article>
 
-  <h3 v-if="questionnaires.questionnaires.length > 0">Eigene Umfragen</h3>
-  <Questionnaire
-    v-if="questionnaires.questionnaires.length > 0"
-    v-for="questionnaire in questionnaires.questionnaires"
-    :questionnaire="questionnaire"
-    @questionnaire-changed="questionnaires.load()"
-  ></Questionnaire>
+    <h3 v-if="questionnaires.questionnaires.length > 0">Eigene Umfragen</h3>
+    <Questionnaire
+      v-if="questionnaires.questionnaires.length > 0"
+      v-for="questionnaire in questionnaires.questionnaires"
+      :questionnaire="questionnaire"
+      @questionnaire-changed="questionnaires.load()"
+    ></Questionnaire>
 
-  <h3 v-if="questionnaires.sharedQuestionnaires.length > 0" class="m-top">
-    Mit dir geteilte Umfragen
-  </h3>
-  <SharedQuestionnaire
-    v-if="questionnaires.sharedQuestionnaires.length > 0"
-    v-for="questionnaire in questionnaires.sharedQuestionnaires"
-    :questionnaire="questionnaire"
-  ></SharedQuestionnaire>
+    <h3 v-if="questionnaires.sharedQuestionnaires.length > 0" class="m-top">
+      Mit dir geteilte Umfragen
+    </h3>
+    <SharedQuestionnaire
+      v-if="questionnaires.sharedQuestionnaires.length > 0"
+      v-for="questionnaire in questionnaires.sharedQuestionnaires"
+      :questionnaire="questionnaire"
+    ></SharedQuestionnaire>
 
-  <EditQuestionnaireModal
-    v-if="editQuestionnaireStore.clicked"
-    @saved="questionnaires.load()"
-  ></EditQuestionnaireModal>
+    <EditQuestionnaireModal
+      v-if="editQuestionnaireStore.clicked"
+      @saved="questionnaires.load()"
+    ></EditQuestionnaireModal>
 
-  <CreateQuestionnaireModal v-if="createQuestionnaireStore.clicked">
-  </CreateQuestionnaireModal>
+    <CreateQuestionnaireModal v-if="createQuestionnaireStore.clicked">
+    </CreateQuestionnaireModal>
 
-  <footer v-if="user">
-    <Disclaimer id="disclaimer"></Disclaimer>
-    <div class="logout">
-      <div class="user-email">
-        Angemeldet als: <span id="user-email">{{ user.email }}</span>
+    <footer v-if="user">
+      <Disclaimer id="disclaimer"></Disclaimer>
+      <div class="logout">
+        <div class="user-email">
+          Angemeldet als: <span id="user-email">{{ user.email }}</span>
+        </div>
+        <div class="logout-button">
+          <a href="" @click.prevent="logout" role="button" class="secondary"
+            >Ausloggen</a
+          >
+        </div>
       </div>
-      <div class="logout-button">
-        <a href="" @click.prevent="logout" role="button" class="secondary"
-          >Ausloggen</a
-        >
-      </div>
-    </div>
-  </footer>
+    </footer>
+  </div>
 </template>
 
 <style scoped>
@@ -102,6 +104,16 @@ div.logout {
 
 h3.m-top {
   margin-top: 3em;
+}
+
+div.overview {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+footer {
+  margin-top: auto;
 }
 
 @media (max-width: 575px) {
@@ -139,11 +151,5 @@ h3.m-top {
     left: calc(0.5 * (100vw - 1140px));
     right: calc(0.5 * (100vw - 1140px));
   }
-}
-
-footer {
-  position: absolute;
-  display: block;
-  bottom: 2em;
 }
 </style>

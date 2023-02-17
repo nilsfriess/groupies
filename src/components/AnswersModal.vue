@@ -35,6 +35,9 @@ defineEmits(['close'])
         ></a>
         Erhaltene Antworten
       </header>
+      <h4 v-if="additionalQuestions && additionalQuestions.length > 0">
+        Eintragungen in {{ workshopDescription }}
+      </h4>
       <figure>
         <table role="grid">
           <thead>
@@ -97,9 +100,6 @@ defineEmits(['close'])
 </template>
 
 <style scoped>
-dialog article {
-  min-width: 45vw;
-}
 .option {
   border-left: 1px solid var(--primary);
   padding-left: 1em;

@@ -107,8 +107,3 @@ details .shared {
   margin-bottom: 2em;
 }
 </style>
-
-<!-- <summary style="font-size: 120%;">Testumfrage</summary>
-                      
-                      </p><div class="grid"><button class="outline">Link zur Umfrage anzeigen</button><button class="outline">Umfrage abschließen</button></div> -->
-.

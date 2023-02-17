@@ -245,10 +245,6 @@ onMounted(() => {
   float: right;
 }
 
-article {
-  min-width: 45vw;
-}
-
 details {
   margin-top: 3em;
 }
