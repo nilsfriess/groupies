@@ -1,12 +1,3 @@
-<!-- <script setup> -->
-<!-- defineProps({ -->
-<!--   msg: { -->
-<!--     type: String, -->
-<!--     required: true -->
-<!--   } -->
-<!-- }) -->
-<!-- </script> -->
-
 <script setup>
 import { useRoute } from 'vue-router'
 import { useCurrentUser } from 'vuefire'

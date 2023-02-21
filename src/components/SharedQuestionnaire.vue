@@ -1,6 +1,6 @@
 <script setup>
 import { ref as dbRef, get, child, update } from '@firebase/database'
-import { onMounted, ref, defineProps, computed, toRaw } from 'vue'
+import { onMounted, ref, computed, toRaw } from 'vue'
 import { useDatabase } from 'vuefire'
 
 import AnswersModal from './AnswersModal.vue'

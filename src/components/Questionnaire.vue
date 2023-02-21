@@ -1,6 +1,6 @@
 <script setup>
-import { ref as dbRef, get, child, update } from '@firebase/database'
-import { onMounted, ref, defineProps, computed, toRaw } from 'vue'
+import { ref as dbRef, get, child } from '@firebase/database'
+import { onMounted, ref, computed } from 'vue'
 import { useDatabase } from 'vuefire'
 
 import { useEditQuestionnaireStore } from '../stores/editQuestionnaire'
