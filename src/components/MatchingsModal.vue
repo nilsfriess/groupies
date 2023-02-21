@@ -74,7 +74,25 @@ function download() {
       let question = props.questionnaire.additionalQuestions[i]
 
       table.push([question.question])
+
+      for (let j = 0; j < question.options.length; ++j) {
+        let option = question.options[j]
+        table.push([option])
+
+        let answers = answersForOption(i, j)
+        console.log(answers)
+        if (answers.length > 0) {
+          for (let k = 0; k < answers.length; ++k)
+            table.push([answers[k].name, answers[k].institution])
+          table.push([''])
+        } else {
+          table.push(['Keine Eintragungen für diese Option'])
+        }
+      }
     }
+
+    worksheet = utils.aoa_to_sheet(table)
+    utils.book_append_sheet(workbook, worksheet, 'Zusätzliche Fragen')
   }
 
   writeFileXLSX(workbook, props.questionnaire.name + '.xlsx')
