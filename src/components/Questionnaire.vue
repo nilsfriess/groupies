@@ -27,9 +27,7 @@ const numAnswers = computed(() => {
 const updateAnswers = () => {
   const db = dbRef(useDatabase())
 
-  const questAnswers = get(
-    child(db, 'answers/' + props.questionnaire.link)
-  ).then((answer) => {
+  get(child(db, 'answers/' + props.questionnaire.link)).then((answer) => {
     if (answer.exists()) {
       answers.value = Object.values(answer.val())
     } else {

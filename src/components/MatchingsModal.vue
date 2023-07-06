@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref, toRaw } from 'vue'
 import { stableMatching } from '../utils/matching'
-import { utils, writeFileXLSX } from 'xlsx'
+import { utils, writeFile } from 'xlsx'
 import { useErrorStore } from '../stores/error'
 
 const props = defineProps({
@@ -10,6 +10,7 @@ const props = defineProps({
 })
 
 const matchings = ref(new Array())
+const additionalParticipants = ref(new Array())
 
 function computeMatching() {
   let workshops = toRaw(props.questionnaire.workshops)
@@ -17,7 +18,10 @@ function computeMatching() {
   let answers = toRaw(props.answers)
   let priorities = props.questionnaire.priorities
 
-  matchings.value = stableMatching(answers, workshops, rounds, priorities)
+  let matchingResults = stableMatching(answers, workshops, rounds, priorities)
+
+  matchings.value = matchingResults.workshops
+  additionalParticipants.value = matchingResults.additionalParticipants
 }
 
 function answersForOption(questionIndex, optionIndex) {
@@ -58,9 +62,40 @@ function download() {
     table.push([''])
   }
 
+  if (additionalParticipants.value.length > 0) {
+    table.push([''])
+    table.push(['Nicht eingetragene Teilnehmer:innen'])
+    for (let participant of additionalParticipants.value)
+      table.push([
+        participant.name,
+        participant.institution,
+        choices(participant),
+      ])
+  }
+
   let worksheet = utils.aoa_to_sheet(table)
   let workbook = utils.book_new()
-  utils.book_append_sheet(workbook, worksheet, 'Zuteilungen')
+  utils.book_append_sheet(workbook, worksheet, 'Zuteilungen (nach Workshops)')
+
+  let matchingsByParticipant = matchings.value
+    .map((w) => {
+      // We're only considering the first round at the moment
+      let participants = w.participants[0].map((p) => {
+        p.workshop = w.name
+        return p
+      })
+      return participants
+    })
+    .flat(2)
+    .sort((p1, p2) => ('' + p1.name).localeCompare(p2.name))
+    .map(Object.values)
+
+  table = new Array()
+  table.push(['Name', 'Institution', 'Zugeteilter Workshop'])
+  table = table.concat(matchingsByParticipant)
+
+  worksheet = utils.aoa_to_sheet(table)
+  utils.book_append_sheet(workbook, worksheet, 'Zuteilung (nach Teilnehmenden)')
 
   if (
     props.questionnaire.additionalQuestions &&
@@ -95,10 +130,19 @@ function download() {
     utils.book_append_sheet(workbook, worksheet, 'Zusätzliche Fragen')
   }
 
-  writeFileXLSX(workbook, props.questionnaire.name + '.xlsx')
+  writeFile(workbook, props.questionnaire.name + '.xlsx')
 }
 
 const isMobile = () => screen.width <= 760
+
+const choices = (answer) => {
+  let workshops = toRaw(props.questionnaire.workshops)
+  return answer.choices
+    .map((index) => {
+      return workshops[index].name
+    })
+    .join(', ')
+}
 
 const emit = defineEmits(['close'])
 
@@ -110,20 +154,20 @@ onMounted(() => {
     return
   }
 
-  let availablePlaces = props.questionnaire.workshops
-    .map((item) => item.capacity)
-    .reduce((a, b) => a + b)
+  // let availablePlaces = props.questionnaire.workshops
+  //   .map((item) => item.capacity)
+  //   .reduce((a, b) => a + b)
 
-  if (availablePlaces < props.answers.length) {
-    error.showMessage([
-      'Es sind nicht genügend Plätze für die angemeldeten Teilnehmer:innen verfügbar.',
-      '',
-      'Erhaltene Antworten: ' + props.answers.length,
-      'Verfügbare Plätze: ' + availablePlaces,
-    ])
-    emit('close')
-    return
-  }
+  // if (availablePlaces < props.answers.length) {
+  //   error.showMessage([
+  //     'Es sind nicht genügend Plätze für die angemeldeten Teilnehmer:innen verfügbar.',
+  //     '',
+  //     'Erhaltene Antworten: ' + props.answers.length,
+  //     'Verfügbare Plätze: ' + availablePlaces,
+  //   ])
+  //   emit('close')
+  //   return
+  // }
 
   computeMatching()
 })
@@ -144,48 +188,80 @@ onMounted(() => {
       <section v-for="matching in matchings">
         <h5>{{ matching.name }}</h5>
         <template v-if="matching.participants.length === 1">
-          <table v-if="matching.participants[0].length > 0">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Name</th>
-                <th>Institution</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(answer, index) in matching.participants[0]">
-                <td>{{ index + 1 }}</td>
-                <td>{{ answer.name }}</td>
-                <td>{{ answer.institution }}</td>
-              </tr>
-            </tbody>
-          </table>
+          <figure v-if="matching.participants[0].length > 0">
+            <table role="grid">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Institution</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(answer, index) in matching.participants[0]">
+                  <td>{{ index + 1 }}</td>
+                  <td>{{ answer.name }}</td>
+                  <td>{{ answer.institution }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </figure>
           <p v-else>Keine Eintragung.</p>
         </template>
         <template v-else v-for="(participants, index) in matching.participants">
           <h6>Runde {{ index + 1 }}</h6>
-          <table v-if="participants.length > 0">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Name</th>
-                <th>Institution</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(answer, index) in participants">
-                <td>{{ index + 1 }}</td>
-                <td>{{ answer.name }}</td>
-                <td>{{ answer.institution }}</td>
-              </tr>
-            </tbody>
-          </table>
+          <figure v-if="participants.length > 0">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Institution</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(answer, index) in participants">
+                  <td>{{ index + 1 }}</td>
+                  <td>{{ answer.name }}</td>
+                  <td>{{ answer.institution }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </figure>
           <p v-else>Keine Eintragung.</p>
         </template>
         <!-- <template v-for="(roundParticipants, index) in matching.participants">
           {{ index }}
         </template> -->
       </section>
+
+      <template v-if="additionalParticipants.length > 0">
+        <h4>Nicht eingetragene Teilnehmer:innen</h4>
+        <p class="mb2">
+          Diese Teilnehmer:innen haben sich angemeldet, nachdem alle Gruppen
+          schon voll waren.
+        </p>
+        <figure>
+          <table role="grid">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Institution</th>
+                <th>Prioritäten</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(answer, index) in additionalParticipants">
+                <td>{{ index + 1 }}</td>
+                <td>{{ answer.name }}</td>
+                <td>{{ answer.institution }}</td>
+                <td>{{ choices(answer) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </figure>
+      </template>
 
       <section
         v-if="
@@ -251,5 +327,9 @@ onMounted(() => {
 
 footer {
   text-align: left;
+}
+
+.mb2 {
+  margin-bottom: 2em;
 }
 </style>

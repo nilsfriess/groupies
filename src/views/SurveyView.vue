@@ -4,7 +4,6 @@ import { ref as dbRef, get, child, set, push } from '@firebase/database'
 import { useRoute } from 'vue-router'
 import { useDatabase } from 'vuefire'
 import { ref } from 'vue'
-import ErrorModal from '../components/ErrorModal.vue'
 import { useErrorStore } from '../stores/error'
 
 const questionnaire = ref({})
@@ -44,14 +43,16 @@ get(
       }
     }
 
-    get(child(db, 'answers/' + route.params.uid + '/' + route.params.qid)).then(
-      (snapshot) => {
-        const answers = snapshot.size
-        const capacity = questionnaire.value.totalCapacity
+    // Deactivate this for now.
+    // TODO: Add the option to enable this when creating a survey
+    // get(child(db, 'answers/' + route.params.uid + '/' + route.params.qid)).then(
+    //   (snapshot) => {
+    //     const answers = snapshot.size
+    //     const capacity = questionnaire.value.totalCapacity
 
-        if (answers >= capacity) isFull.value = true
-      }
-    )
+    //     if (answers >= capacity) isFull.value = true
+    //   }
+    // )
   }
 })
 

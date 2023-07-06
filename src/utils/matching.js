@@ -17,6 +17,14 @@ export function stableMatching(answers, workshops, rounds, priorities) {
   // Step 1
   let cleanAnswers = Object.values(answers)
 
+  // Check if there are more people than available places
+  let capacity = workshops.reduce((sum, cur) => sum + cur.capacity, 0)
+
+  let additionalParticipants = new Array()
+  if (answers.length > capacity) {
+    additionalParticipants = cleanAnswers.splice(capacity, answers.length)
+  }
+
   if (workshops.length > priorities) {
     for (let i = 0; i < cleanAnswers.length; ++i) {
       while (cleanAnswers[i].choices.length < workshops.length) {
@@ -83,7 +91,10 @@ export function stableMatching(answers, workshops, rounds, priorities) {
     })
   }
 
-  return finalWorkshops
+  return {
+    workshops: finalWorkshops,
+    additionalParticipants: additionalParticipants,
+  }
 }
 
 function getRandomInt(min, max) {

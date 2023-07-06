@@ -231,6 +231,7 @@ function create() {
         placeholder="Runden"
         v-model.number="rounds"
         min="1"
+        disabled
       />
       <small>
         Hier kannst du angeben, wie oft die unten erstellten
