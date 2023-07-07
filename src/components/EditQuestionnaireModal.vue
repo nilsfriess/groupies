@@ -222,16 +222,6 @@ onMounted(() => {
             :disabled="!editQuestionnaireStore.currentQuestionnaire.isOpen"
           />
         </label>
-        <label for="rounds">
-          Runden
-          <input
-            type="number"
-            name="rounds"
-            v-model.number="editQuestionnaireStore.currentQuestionnaire.rounds"
-            :disabled="!editQuestionnaireStore.currentQuestionnaire.isOpen"
-            min="1"
-          />
-        </label>
       </details>
       <footer>
         <button @click="save()">Änderungen speichern</button>

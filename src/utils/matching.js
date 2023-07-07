@@ -1,4 +1,4 @@
-export function stableMatching(answers, workshops, rounds, priorities) {
+export function stableMatching(answers, workshops, priorities) {
   /* This function tries to compute a stable matching between
        participants that gave answers which contain priorities
        for the given workshops.
@@ -13,6 +13,9 @@ export function stableMatching(answers, workshops, rounds, priorities) {
        3. Go through the list of answers and give each participant
        the best possible workshop.
     */
+
+  // TODO: remove this variable from the algorithm
+  const rounds = 1
 
   // Step 1
   let cleanAnswers = Object.values(answers)

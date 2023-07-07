@@ -9,10 +9,9 @@ import { useQuestionnairesStore } from '../stores/questionnaires'
 
 const name = ref('')
 const organisers = ref('')
-const rounds = ref()
 const workshops = ref(new Array())
 const groupName = ref('')
-const priorities = ref()
+const priorities = ref(null)
 
 const currentWorkshopName = ref('')
 const currentWorkshopCapacity = ref()
@@ -102,6 +101,11 @@ function create() {
     return
   }
 
+  if (!priorities.value || priorities.value == '') {
+    error.showMessage('Anzahl an Prioritäten muss angegeben werden.')
+    return
+  }
+
   if (currentAdditionalQuestion.value !== '') {
     warnAdditionalQuestionModalOpen.value = true
     return
@@ -115,8 +119,6 @@ function create() {
   }
 
   if (groupName.value.length === 0) groupName.value = 'Gruppen'
-
-  if (!rounds.value || rounds.value < 1) rounds.value = 1
 
   const user = useCurrentUser()
   const organiserList = organisers.value
@@ -133,7 +135,6 @@ function create() {
       set(ref, {
         name: name.value,
         orgas: organiserList,
-        rounds: rounds.value,
         priorities: priorities.value,
         workshopDescription: groupName.value,
         workshops: workshops.value,
@@ -218,29 +219,11 @@ function create() {
         placeholder="Prioritäten"
         v-model.number="priorities"
         min="1"
+        required
       />
       <small>
         Hier kannst du angeben, wievele Prioritäten die Teilnehmer:innen angeben
         können.
-      </small>
-
-      <input
-        type="number"
-        id="questionnaire-rounds"
-        name="rounds"
-        placeholder="Runden"
-        v-model.number="rounds"
-        min="1"
-        disabled
-      />
-      <small>
-        Hier kannst du angeben, wie oft die unten erstellten
-        {{ groupName == '' ? 'Gruppen' : groupName }} angeboten werden. Wenn die
-        Teilnehmer:innen also beispielsweise an zwei (verschiedenen) der unten
-        erstellten {{ groupName == '' ? 'Gruppen' : groupName }} teilnehmen
-        können, dann gebe hier 2 ein. Falls die
-        {{ groupName == '' ? 'Gruppen' : groupName }} nur einmal angeboten
-        werden, dann lasse dieses Feld einfach leer oder gebe 1 ein.
       </small>
 
       <h4>{{ groupName == '' ? 'Gruppen' : groupName }}</h4>

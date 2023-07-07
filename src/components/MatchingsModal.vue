@@ -14,11 +14,10 @@ const additionalParticipants = ref(new Array())
 
 function computeMatching() {
   let workshops = toRaw(props.questionnaire.workshops)
-  let rounds = props.questionnaire.rounds
   let answers = toRaw(props.answers)
   let priorities = props.questionnaire.priorities
 
-  let matchingResults = stableMatching(answers, workshops, rounds, priorities)
+  let matchingResults = stableMatching(answers, workshops, priorities)
 
   matchings.value = matchingResults.workshops
   additionalParticipants.value = matchingResults.additionalParticipants
@@ -31,36 +30,21 @@ function answersForOption(questionIndex, optionIndex) {
 }
 
 function download() {
+  console.log('download')
   let table = new Array()
   for (let workshop of matchings.value) {
     table.push([
       workshop.name + ' (Max. ' + workshop.capacity + ' Teilnehmer:innen)',
     ])
 
-    if (props.questionnaire.rounds === 1) {
-      for (let participant of workshop.participants[0]) {
-        let row = new Array()
-        row.push(participant.name)
-        row.push(participant.institution)
-        table.push(row)
-      }
-    } else {
-      for (let round = 0; round < workshop.participants.length; ++round) {
-        table.push(['Runde' + (round + 1)])
-        if (workshop.participants[round].length === 0) {
-          table.push(['Keine Eintragung'])
-        } else {
-          for (let participant of workshop.participants[round]) {
-            let row = new Array()
-            row.push(participant.name)
-            row.push(participant.institution)
-            table.push(row)
-          }
-        }
-      }
+    for (let participant of workshop.participants[0]) {
+      let row = new Array()
+      row.push(participant.name)
+      row.push(participant.institution)
+      table.push(row)
     }
-    table.push([''])
   }
+  table.push([''])
 
   if (additionalParticipants.value.length > 0) {
     table.push([''])
@@ -79,7 +63,6 @@ function download() {
 
   let matchingsByParticipant = matchings.value
     .map((w) => {
-      // We're only considering the first round at the moment
       let participants = w.participants[0].map((p) => {
         p.workshop = w.name
         return p
@@ -124,12 +107,11 @@ function download() {
           table.push(['Keine Eintragungen für diese Option'])
         }
       }
+
+      worksheet = utils.aoa_to_sheet(table)
+      utils.book_append_sheet(workbook, worksheet, 'Zusätzliche Fragen')
     }
-
-    worksheet = utils.aoa_to_sheet(table)
-    utils.book_append_sheet(workbook, worksheet, 'Zusätzliche Fragen')
   }
-
   writeFile(workbook, props.questionnaire.name + '.xlsx')
 }
 
@@ -208,31 +190,31 @@ onMounted(() => {
           </figure>
           <p v-else>Keine Eintragung.</p>
         </template>
-        <template v-else v-for="(participants, index) in matching.participants">
-          <h6>Runde {{ index + 1 }}</h6>
-          <figure v-if="participants.length > 0">
-            <table>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Name</th>
-                  <th>Institution</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(answer, index) in participants">
-                  <td>{{ index + 1 }}</td>
-                  <td>{{ answer.name }}</td>
-                  <td>{{ answer.institution }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </figure>
-          <p v-else>Keine Eintragung.</p>
-        </template>
+        <!-- <template v-else v-for="(participants, index) in matching.participants">
+                     <h6>Runde {{ index + 1 }}</h6>
+                     <figure v-if="participants.length > 0">
+                     <table>
+                     <thead>
+                     <tr>
+                     <th>#</th>
+                     <th>Name</th>
+                     <th>Institution</th>
+                     </tr>
+                     </thead>
+                     <tbody>
+                     <tr v-for="(answer, index) in participants">
+                     <td>{{ index + 1 }}</td>
+                     <td>{{ answer.name }}</td>
+                     <td>{{ answer.institution }}</td>
+                     </tr>
+                     </tbody>
+                     </table>
+                     </figure>
+                     <p v-else>Keine Eintragung.</p>
+                     </template> -->
         <!-- <template v-for="(roundParticipants, index) in matching.participants">
-          {{ index }}
-        </template> -->
+                     {{ index }}
+                     </template> -->
       </section>
 
       <template v-if="additionalParticipants.length > 0">
