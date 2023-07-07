@@ -1,29 +1,55 @@
-# groupies
+# `Groupies` - Verwalte Anmeldungen zu Workshops, Führungen etc.
 
-This template should help get you started developing with Vue 3 in Vite.
+Die Webversion von `Groupies` ist [hier](https://groupie-workshop.web.app/) verfügbar.
 
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
+Um eine eigene Version zu hosten wird ein [Firebase](https://firebase.google.com/)-Account und [Firebase CLI](https://firebase.google.com/docs/cli) benötigt. Nachdem Firebase CLI installiert ist, klone `Groupies` und wechsle in den erstellten Ordner.
+```terminal
+$ git clone https://github.com/nilsfriess/groupies
+$ cd groupies
 ```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
+Richte anschließend Firebase ein
+```terminal
+$ firebase login
+...
+$ firebase init hosting
 ```
+Nachdem alles eingerichtet wurde, kann die Webseite mit
+```
+$ npm run build
+$ firebase deploy
+```
+veröffentlich werden.
 
-### Compile and Minify for Production
-
-```sh
-npm run build
+Im der [Firebase Console](https://console.firebase.google.com/) sollten für die Datenbank noch Sicherheitsregeln hinzugefügt werden, bspw.
+```json
+{
+  "rules": {
+    "questionnaires": {
+      "$user_id": {
+           ".read": "$user_id === auth.uid",
+           ".write": "$user_id === auth.uid",
+           "$qid": {
+            	".read": true
+           }         
+      }
+    },
+    "answers": {
+       "$user_id": {
+         "$qid": {
+          ".read": "$user_id === auth.uid || root.child('questionnaires/' + $user_id + '/' + $qid).child('orgas').child('0').val() === auth.token.email || root.child('questionnaires/' + $user_id + '/' + $qid).child('orgas').child('1').val() === auth.token.email || root.child('questionnaires/' + $user_id + '/' + $qid).child('orgas').child('2').val() === auth.token.email || root.child('questionnaires/' + $user_id + '/' + $qid).child('orgas').child('3').val() === auth.token.email",
+          ".write": true
+         }
+      }
+   },
+     "sharedQuestionnaires": {
+       "$user_email": {
+         ".read": "$user_email === auth.token.email.replace('.', ',')",
+         "$org_id": {
+          ".read": "$user_email === auth.token.email.replace('.', ',') || auth.uid === $org_id",
+          ".write": "auth.uid !== null"
+       }
+       }
+     }
+  }
+}	
 ```
