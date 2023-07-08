@@ -80,28 +80,30 @@ createQuestionnaire.$subscribe((_, state) => {
       <div class="logout">
         <div class="user-email">
             Angemeldet als: <span id="user-email">{{ user.email }}</span>
-            <div><a href="/impressum">Datenschutz &amp; Impressum</a></div>
+            <div class="impressum"><a href="/impressum">Impressum</a></div>
         </div>
         <div class="logout-button">
-          <a href="" @click.prevent="logout" role="button" class="secondary"
-            >Ausloggen</a
+            <button @click.prevent="logout" class="secondary"
+            >Ausloggen</button
           >
         </div>
       </div>
-      
     </footer>
   </div>
 </template>
 
 <style scoped>
-div.logout {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+@media screen and (min-width: 521px) {
+    div.logout {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 }
 
 #disclaimer {
   margin-top: 4em;
+    display: none;
 }
 
 h3.m-top {
@@ -153,5 +155,24 @@ footer {
     left: calc(0.5 * (100vw - 1140px));
     right: calc(0.5 * (100vw - 1140px));
   }
+}
+
+@media screen and (max-width: 520px) {
+    footer {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .user-email {
+        width: 100%;
+        margin-bottom: 1em;
+        text-align: center;
+    }
+}
+
+.impressum {
+    margin-top: 1em;
 }
 </style>
