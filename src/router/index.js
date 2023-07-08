@@ -30,7 +30,7 @@ const router = createRouter({
     {
       path: '/overview',
       name: 'overview',
-      component: OverviewView,
+      component: () => import('../views/OverviewView.vue'),
       meta: {
         requiresAuth: true,
       },
@@ -38,12 +38,12 @@ const router = createRouter({
     {
       path: '/survey/:uid/:qid',
       name: 'survey',
-      component: SurveyView,
+        component: () => import('../views/SurveyView.vue'),
     },
     {
       path: '/impressum',
       name: 'impressum',
-      component: ImpressumView,
+        component: () => import('../views/ImpressumView.vue'),
     },
     // {
     //   path: '/about',
