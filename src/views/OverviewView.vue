@@ -79,13 +79,11 @@ createQuestionnaire.$subscribe((_, state) => {
       <Disclaimer id="disclaimer"></Disclaimer>
       <div class="logout">
         <div class="user-email">
-            Angemeldet als: <span id="user-email">{{ user.email }}</span>
-            <div class="impressum"><a href="/impressum">Impressum</a></div>
+          Angemeldet als: <span id="user-email">{{ user.email }}</span>
+          <div class="impressum"><a href="/impressum">Impressum</a></div>
         </div>
         <div class="logout-button">
-            <button @click.prevent="logout" class="secondary"
-            >Ausloggen</button
-          >
+          <button @click.prevent="logout" class="secondary">Ausloggen</button>
         </div>
       </div>
     </footer>
@@ -94,16 +92,16 @@ createQuestionnaire.$subscribe((_, state) => {
 
 <style scoped>
 @media screen and (min-width: 521px) {
-    div.logout {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
+  div.logout {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 }
 
 #disclaimer {
   margin-top: 4em;
-    display: none;
+  display: none;
 }
 
 h3.m-top {
@@ -158,21 +156,21 @@ footer {
 }
 
 @media screen and (max-width: 520px) {
-    footer {
-        display: flex;
-        flex-direction: column;
-        flex-wrap: wrap;
-        align-items: center;
-    }
+  footer {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+  }
 
-    .user-email {
-        width: 100%;
-        margin-bottom: 1em;
-        text-align: center;
-    }
+  .user-email {
+    width: 100%;
+    margin-bottom: 1em;
+    text-align: center;
+  }
 }
 
 .impressum {
-    margin-top: 1em;
+  margin-top: 1em;
 }
 </style>

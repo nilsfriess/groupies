@@ -38,12 +38,12 @@ const router = createRouter({
     {
       path: '/survey/:uid/:qid',
       name: 'survey',
-        component: () => import('../views/SurveyView.vue'),
+      component: () => import('../views/SurveyView.vue'),
     },
     {
       path: '/impressum',
       name: 'impressum',
-        component: () => import('../views/ImpressumView.vue'),
+      component: () => import('../views/ImpressumView.vue'),
     },
     // {
     //   path: '/about',
