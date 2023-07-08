@@ -14,6 +14,7 @@ const name = ref('')
 const institution = ref('')
 const choices = ref(new Array())
 const isFull = ref(false)
+const errorMessage = ref('Diese Umfrage wurde bereits geschlossen.')
 
 const additionalQuestionAnswers = ref(new Array())
 
@@ -53,6 +54,10 @@ get(
     //     if (answers >= capacity) isFull.value = true
     //   }
     // )
+  } else {
+    loaded.value = true
+    errorMessage.value =
+      'Eine Umfrage mit dem angegebenen Link existiert nicht.'
   }
 })
 
@@ -205,7 +210,7 @@ function submit() {
   </article>
 
   <article v-if="loaded && !questionnaire.isOpen">
-    Diese Umfrage wurde bereits geschlossen.
+    {{ errorMessage }}
   </article>
 
   <article v-if="loaded && questionnaire.isOpen && isFull">
