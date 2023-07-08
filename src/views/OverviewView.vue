@@ -79,7 +79,8 @@ createQuestionnaire.$subscribe((_, state) => {
       <Disclaimer id="disclaimer"></Disclaimer>
       <div class="logout">
         <div class="user-email">
-          Angemeldet als: <span id="user-email">{{ user.email }}</span>
+            Angemeldet als: <span id="user-email">{{ user.email }}</span>
+            <div><a href="/impressum">Datenschutz &amp; Impressum</a></div>
         </div>
         <div class="logout-button">
           <a href="" @click.prevent="logout" role="button" class="secondary"
@@ -87,6 +88,7 @@ createQuestionnaire.$subscribe((_, state) => {
           >
         </div>
       </div>
+      
     </footer>
   </div>
 </template>

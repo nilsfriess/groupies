@@ -3,6 +3,7 @@ import { getCurrentUser } from 'vuefire'
 import HomeView from '../views/HomeView.vue'
 import OverviewView from '../views/OverviewView.vue'
 import SurveyView from '../views/SurveyView.vue'
+import ImpressumView from '../views/ImpressumView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,6 +39,11 @@ const router = createRouter({
       path: '/survey/:uid/:qid',
       name: 'survey',
       component: SurveyView,
+    },
+    {
+      path: '/impressum',
+      name: 'impressum',
+      component: ImpressumView,
     },
     // {
     //   path: '/about',

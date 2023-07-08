@@ -21,9 +21,14 @@ const createQuestionnaire = useCreateQuestionnaireStore()
     <ul v-if="!user">
       <li><router-link to="/register">Registrieren</router-link></li>
       <li><router-link to="/login">Login</router-link></li>
+      <span class="separator">|</span>
+      <li><router-link to="/impressum">Impressum &amp; Datenschutz</router-link></li>
     </ul>
     <ul v-if="route.name == 'overview'" class="create-button">
       <button @click="createQuestionnaire.click()">Neue Umfrage</button>
+    </ul>
+    <ul v-if="route.name === 'survey'">
+        <li><router-link to="/impressum">Impressum &amp; Datenschutz</router-link></li>
     </ul>
   </nav>
 </template>
@@ -40,5 +45,10 @@ strong {
 ul.create-button {
   margin-top: 1em;
   margin-right: 0;
+}
+
+.separator {
+    margin-left: 12px;
+    margin-right: 12px;
 }
 </style>
